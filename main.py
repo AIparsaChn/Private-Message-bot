@@ -4,6 +4,8 @@ import asyncio
 import telebot
 from telebot.async_telebot import AsyncTeleBot, ExceptionHandler
 
+import database
+
 logger = telebot.async_telebot.logger
 logger.setLevel("INFO")
 
@@ -15,10 +17,14 @@ TOKEN = os.environ.get("bot_token", None)
 if not TOKEN:
     raise ValueError("The token doesn't exist.")
 
+database.create_database_and_table()
+
 bot = AsyncTeleBot(
     token=TOKEN,
     exception_handler=BotExceptionHandler()
 )
+
+
 
 
 if __name__ == "__main__":
