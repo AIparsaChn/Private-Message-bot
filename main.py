@@ -1,8 +1,12 @@
 import os
+import json
 import asyncio
+import pprint
+from datetime import datetime
 
 import telebot
 from telebot.async_telebot import AsyncTeleBot, ExceptionHandler
+from telebot.types import Message, ChatFullInfo
 
 import database
 
@@ -24,6 +28,24 @@ bot = AsyncTeleBot(
     exception_handler=BotExceptionHandler()
 )
 
+
+@bot.my_chat_member_handler()
+async def recieve_group_info(message: Message):
+    group_info: ChatFullInfo = await bot.get_chat(message.chat.id)
+    pprint.pprint(group_info.__dict__)
+    database.store_group_info(
+        chat_id=group_info.id,
+        username=group_info.username,
+        chat_type=group_info.type,
+        title=group_info.title,
+        description=group_info.description,
+        is_forum=group_info.is_forum,
+        bio=group_info.bio,
+        date_membership=str(datetime.now()),
+        json_photos=json.dumps(group_info.photo.__dict__) if group_info.photo is not None else None
+    )
+
+    logger.info("A new group added to database.")
 
 
 
