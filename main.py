@@ -8,7 +8,8 @@ import telebot
 from telebot.async_telebot import AsyncTeleBot, ExceptionHandler
 from telebot.types import Message, ChatFullInfo
 
-import database
+import sql_database
+from redis_database import RedisDatabase as rd
 
 logger = telebot.async_telebot.logger
 logger.setLevel("INFO")
@@ -21,7 +22,7 @@ TOKEN = os.environ.get("bot_token", None)
 if not TOKEN:
     raise ValueError("The token doesn't exist.")
 
-database.create_database_and_table()
+sql_database.create_database_and_table()
 
 bot = AsyncTeleBot(
     token=TOKEN,
@@ -32,8 +33,9 @@ bot = AsyncTeleBot(
 @bot.my_chat_member_handler()
 async def recieve_group_info(message: Message):
     group_info: ChatFullInfo = await bot.get_chat(message.chat.id)
-    pprint.pprint(group_info.__dict__)
-    database.store_group_info(
+
+    #Add info to sqlite database
+    sql_database.store_group_info(
         chat_id=group_info.id,
         username=group_info.username,
         chat_type=group_info.type,
@@ -45,7 +47,10 @@ async def recieve_group_info(message: Message):
         json_photos=json.dumps(group_info.photo.__dict__) if group_info.photo is not None else None
     )
 
-    logger.info("A new group added to database.")
+    #Store chat_id in single set redis key
+    await rd.add_chat_id(group_info.id)
+
+    logger.info("A new group was added to database.")
 
 
 
