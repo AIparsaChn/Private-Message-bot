@@ -25,9 +25,9 @@ class GroupInformation(Base):
     date_membership: Mapped[str]
     json_photos: Mapped[Optional[str]]
 
-
+DATABASE_NAME = "bot_database.db"
 url = URL.create(drivername="sqlite", database=DATABASE_NAME)
-engine = create_engine(url, echo=True)
+engine = create_engine(url)
 Session = sessionmaker(bind=engine)
 
 
