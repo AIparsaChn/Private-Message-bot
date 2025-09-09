@@ -1,4 +1,5 @@
 virtual_environment/
 __pycache__/
 *.db
+*.log
 
