@@ -69,3 +69,19 @@ def store_group_info(chat_id: int, username: str, chat_type: str,
     except Exception as ex:
         logger.error("An error occured.", exc_info=True)
 
+
+def get_group_title(group_chat_id: str) -> str:
+    session: Se
+    with Session() as session:
+        group_info = session.query(GroupInformation)
+        group_title = group_info.filter(GroupInformation.chat_id == group_chat_id).first().title
+    return group_title
+
+
+def get_group_username(group_chat_id: str) -> str:
+    session: Se
+    with Session() as session:
+        group_info = session.query(GroupInformation)
+        group_username = group_info.filter(GroupInformation.chat_id == group_chat_id).first().username
+    return group_username
+
