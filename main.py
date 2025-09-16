@@ -255,7 +255,7 @@ async def recieve_private_message(message: Message, state: StateContext):
 
 @bot.message_handler(content_types=["text"], chat_types=["private"],
         state=PrivateMessageStates.description)
-async def recieve_private_message(message: Message, state: StateContext):
+async def recieve_description(message: Message, state: StateContext):
     """Receive and process the optional description for the private message.
 
     This handler captures the description text that provides concise decription
