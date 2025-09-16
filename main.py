@@ -11,7 +11,7 @@ from telebot.types import Message, ChatFullInfo, User, CallbackQuery
 from telebot.states import State, StatesGroup
 from telebot.states.asyncio.context import StateContext
 from telebot.asyncio_storage import StateRedisStorage
-from telebot.asyncio_filters import StateFilter
+from telebot.asyncio_filters import StateFilter, TextStartsFilter, AdvancedCustomFilter
 from telebot.states.asyncio.middleware import StateMiddleware
 
 import sql_database
@@ -43,7 +43,7 @@ LIMIT_DESCRIPTION_CHARS = 1000 # Limit of the description which is sent to a pub
 
 class BotExceptionHandler(ExceptionHandler):
     async def handle(self, exception):
-        error_logger.info(exception, exc_info=True)
+        error_logger.error(exception, exc_info=True)
 
 TOKEN = os.environ.get("bot_token", None)
 if not TOKEN:
@@ -62,7 +62,17 @@ class PrivateMessageStates(StatesGroup):
     private_message = State()
     affirmation = State()
 
+class CallbackTextStartsFilter(AdvancedCustomFilter):
+    """Check if the callback data starts with a specific prefix."""
+    key: str = "data_startswith"
+
+    async def check(self, callback: CallbackQuery, text: str):
+        return callback.data.startswith(text)
+
 bot.add_custom_filter(StateFilter(bot))
+bot.add_custom_filter(TextStartsFilter())
+bot.add_custom_filter(CallbackTextStartsFilter())
+
 bot.setup_middleware(StateMiddleware(bot))
 
 
@@ -436,6 +446,35 @@ async def warn_user(message: Message):
     return None
 
 
+@bot.callback_query_handler(data_startswith="private_message:")
+async def display_private_message(callback: CallbackQuery):
+    try:
+        group_chat_id = callback.message.chat.id
+        target_user_id = callback.data.split(":")[-1]
+        user_id = str(callback.from_user.id)
+        message_id = callback.message.id
+
+        if target_user_id == user_id:
+            private_message = await rd.get_private_message(
+                target_user_id=user_id,
+                target_group_chat_id=group_chat_id,
+                private_message_id=message_id
+            )
+            await bot.answer_callback_query(
+                callback_query_id=callback.id,
+                text=private_message,
+                show_alert=True
+            )
+        else:
+            await bot.answer_callback_query(
+                callback_query_id=callback.id,
+                text=messages.NOT_ALLOWED_MESSAGE,
+                show_alert=True
+            )
+    except Exception as ex:
+        error_logger.error(ex, exc_info=True)
+
+
 @bot.my_chat_member_handler()
 async def recieve_group_info(message: Message):
     """Handle my_chat_member updates and store neccessary infomration about a group.
@@ -474,6 +513,7 @@ async def recieve_group_info(message: Message):
         error_logger.error(ex, exc_info=True)
 
     return None
+
 
 if __name__ == "__main__":
     asyncio.run(bot.infinity_polling())

@@ -35,13 +35,20 @@ class RedisDatabase():
 
     @classmethod
     async def store_private_message(cls, target_user_id: str, target_group_chat_id: str,
-                private_message_id: str, private_message_text: str):
+                private_message_id: str, private_message_text: str
+        ):
         connection: Redis = await cls._connect()
 
         key = f"reciever_user:{target_group_chat_id}:{target_user_id}:{private_message_id}"
         await connection.set(key, private_message_text, ex=86400) # Delete after 24 hours to reduce memory usage. '86400 = 1 day'
         return None
 
-
-
+    @classmethod
+    async def get_private_message(cls, target_user_id: str,
+            target_group_chat_id: str, private_message_id: str
+        ) -> str:
+        connection: Redis = await cls._connect()
+        key = f"reciever_user:{target_group_chat_id}:{target_user_id}:{private_message_id}"
+        private_message = await connection.get(key)
+        return private_message
 

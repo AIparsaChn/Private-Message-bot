@@ -66,3 +66,7 @@ Please follow the structure or if your want to cancel the operation click on 'Ca
 CANCELED_OPERATION = """
 The operation has been canceled.
 """
+
+NOT_ALLOWED_MESSAGE = """
+Sorry! This message isn't for you.
+"""
