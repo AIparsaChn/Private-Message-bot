@@ -1,3 +1,10 @@
+"""
+Message templates and user-facing text strings for the bot application.
+
+This module contains all static text messages that are displayed to end users
+throughout the bot's interaction flow.
+"""
+
 from telebot.formatting import mbold, hbold
 
 REQUEST_DESCRIPTION_MESSAGE = f"""
