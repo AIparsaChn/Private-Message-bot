@@ -1,0 +1,24 @@
+[project]
+name = "private message bot"
+description = "Allows users to send their messages in public group for only one special user."
+readme_file = "README.md"
+python_version = ">=3.11"
+keywords = ["alembic", "api", "telegram", "redis", "sqlalchemy", "telegram", "python"]
+
+[project.author]
+author_name = "Parsa Charkhabi"
+author_email = "chrkhabyparsa@gmail.com"
+
+[project.dependencies]
+# Async http client
+aiohttp = "3.12.15"
+
+# Database migration
+alembic = "1.16.5"
+
+# Telegram bot framework 
+pyTelegramBotAPI = "4.28.0"
+
+# Database and caching
+redis = "6.4.0"
+SQLAlchemy = "2.0.43"
