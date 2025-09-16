@@ -421,11 +421,15 @@ async def warn_user(message: Message):
         This handler should have lower priority than specific state handlers
         to ensure it only catches truly unexpected messages.
     """
-    await bot.send_message(
-        chat_id=message.chat.id,
-        text=messages.WARNING_FOLLOW_STRUCTURE,
-        reply_markup=keyboards.create_cancel_keyboard()
-    )
+    try:
+        await bot.send_message(
+            chat_id=message.chat.id,
+            text=messages.WARNING_FOLLOW_STRUCTURE,
+            reply_markup=keyboards.create_cancel_keyboard()
+        )
+    except Exception as ex:
+        error_logger.error(ex, exc_info=True)
+
     return None
 
 
@@ -439,26 +443,31 @@ async def recieve_group_info(message: Message):
     Purpose:
         - Provide some basic information like username, chat_id, title and etc for PrivateMessageStates workflow
     """
-    group_info: ChatFullInfo = await bot.get_chat(message.chat.id)
+    try:
+        group_info: ChatFullInfo = await bot.get_chat(message.chat.id)
 
-    #Add info to sqlite database
-    sql_database.store_group_info(
-        chat_id=group_info.id,
-        username=group_info.username,
-        chat_type=group_info.type,
-        title=group_info.title,
-        description=group_info.description,
-        is_forum=group_info.is_forum,
-        bio=group_info.bio,
-        date_membership=str(datetime.now()),
-        json_photos=json.dumps(group_info.photo.__dict__) if group_info.photo is not None else None
-    )
+        #Add info to sqlite database
+        sql_database.store_group_info(
+            chat_id=group_info.id,
+            username=group_info.username,
+            chat_type=group_info.type,
+            title=group_info.title,
+            description=group_info.description,
+            is_forum=group_info.is_forum,
+            bio=group_info.bio,
+            date_membership=str(datetime.now()),
+            json_photos=json.dumps(group_info.photo.__dict__) if group_info.photo is not None else None
+        )
 
-    #Store chat_id in single set redis key
-    await rd.add_chat_id(group_info.id)
+        #Store chat_id in single set redis key
+        await rd.add_chat_id(group_info.id)
 
-    logger.info("A new group was added to database.")
+        logger.info("A new group was added to database.")
 
+    except Exception as ex:
+        error_logger.error(ex, exc_info=True)
+
+    return None
 
 if __name__ == "__main__":
     asyncio.run(bot.infinity_polling())
