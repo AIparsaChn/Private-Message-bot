@@ -420,6 +420,9 @@ async def warn_user(message: Message):
     Note:
         This handler should have lower priority than specific state handlers
         to ensure it only catches truly unexpected messages.
+
+    Raises:
+        Exception: Logs any exceptions that occur during message sending or state transition.
     """
     try:
         await bot.send_message(
@@ -442,6 +445,9 @@ async def recieve_group_info(message: Message):
 
     Purpose:
         - Provide some basic information like username, chat_id, title and etc for PrivateMessageStates workflow
+
+    Raises:
+        Exception: Logs any exceptions that occur during message sending or state transition.
     """
     try:
         group_info: ChatFullInfo = await bot.get_chat(message.chat.id)
