@@ -446,8 +446,24 @@ async def warn_user(message: Message):
     return None
 
 
-@bot.callback_query_handler(data_startswith="private_message:")
+@bot.callback_query_handler(data_startswith="private_message:", chat_types=["group", "supergroup"])
 async def display_private_message(callback: CallbackQuery):
+    """Handles callback queries for displaying private messages to authorized users.
+    
+    This handler processes button clicks on messages in groups.
+    It verifies that the clicking user is the intended recipient before revealing
+    the private message content.
+
+    Workflow:
+        1. Extracts group chat ID, target user ID, and message ID from callback data
+        2. Verifies if the current user is the intended recipient
+        3. If authorized: retrieves and displays the private message in an alert
+        4. If unauthorized: shows a permission denied message
+        5. Logs any exceptions that occur during processing
+        
+    Raises:
+        Exception: Any exceptions during processing are caught and logged.
+    """
     try:
         group_chat_id = callback.message.chat.id
         target_user_id = callback.data.split(":")[-1]
