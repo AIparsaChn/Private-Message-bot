@@ -16,7 +16,7 @@ A telegram bot that allows you to send your messages in a public group, but only
 - pyTelegramBotAPI framework
 - Redis
 - SQLAlchemy
-- alembic
+- Alembic
 
 ## ⚙️ How to run?
 1. Clone the repository and install dependencies:
