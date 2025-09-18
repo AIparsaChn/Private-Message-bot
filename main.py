@@ -45,7 +45,7 @@ class BotExceptionHandler(ExceptionHandler):
     async def handle(self, exception):
         error_logger.error(exception, exc_info=True)
 
-TOKEN = os.environ.get("bot_token", None)
+TOKEN = os.environ.get("BOT_TOKEN", None)
 if not TOKEN:
     raise ValueError("The token doesn't exist.")
 
